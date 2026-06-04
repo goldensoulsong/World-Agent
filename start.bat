@@ -1,7 +1,7 @@
 @echo off
-title Worldbook Agent CLI
+title World-Agent CLI
 echo ===================================
-echo     欢迎使用 Worldbook Agent
+echo     欢迎使用 World-Agent
 echo ===================================
 echo.
 echo 正在检查环境配置，请稍候...

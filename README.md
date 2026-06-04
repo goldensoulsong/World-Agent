@@ -30,6 +30,34 @@
 
 ---
 
+## 📁 项目目录结构
+
+为了方便大家查阅，下面是本项目的核心结构与对应的功能批注：
+
+```text
+World-Agent/
+├── core/                  # 核心架构层
+│   ├── prompts.py         # 系统提示词（用于给 AI "洗脑"的指令集）
+│   └── react_agent.py     # ReAct Agent 智能体大脑总控（解析意图、调度工具）
+├── tool/                  # 扩展工具箱（AI 技能包）
+│   ├── chunk_text/        # 长文本智能切块排版工具
+│   ├── clean_text/        # 文本去牛皮癣清洗、大模型究极精洗工具
+│   ├── json_to_txt/       # JSON 转 TXT 格式转换工具
+│   ├── list_dir/          # 目录结构读取工具
+│   ├── read_chunk/        # 分块文件读取工具
+│   ├── read_file/         # 基础文件读取工具
+│   ├── web_search/        # 联网搜索工具
+│   ├── write_file/        # 文件写入/保存工具
+│   └── __init__.py        # 工具统一注册与导出模块
+├── main.py                # 主程序入口（包含交互式新手配置引导）
+├── start.bat              # Windows 一键启动脚本（纯英文，全自动准备环境）
+├── requirements.txt       # Python 运行库依赖清单
+├── pyproject.toml         # 项目打包与包管理器配置
+└── README.md              # 项目说明文档
+```
+
+---
+
 ## 💻 给折腾党的架构提示
 
 如果你懂点 Python，想要自己加新功能，代码其实非常好懂：

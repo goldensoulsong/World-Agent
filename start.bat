@@ -1,52 +1,52 @@
 @echo off
 title World-Agent CLI
 echo ===================================
-echo     欢迎使用 World-Agent
+echo     Welcome to World-Agent
 echo ===================================
 echo.
-echo 正在检查环境配置，请稍候...
+echo Checking environment configuration, please wait...
 echo.
 
-:: 1. 优先尝试使用 uv（最高速模式）
+:: 1. Try to use uv (high speed mode) first
 where uv >nul 2>nul
 if %ERRORLEVEL% equ 0 (
-    echo [系统提示] 检测到已安装 uv，正在使用高速模式启动...
+    echo [System] Detected uv installed, starting in high-speed mode...
     uv run main.py
     goto end
 )
 
-:: 2. 如果没有 uv，降级为使用普通 Python
+:: 2. If there is no uv, fallback to normal Python
 where python >nul 2>nul
 if %ERRORLEVEL% neq 0 (
-    echo [错误] 您的电脑既没有安装 uv，也没有安装 Python 环境！
-    echo 请前往 https://www.python.org/ 下载并安装 Python 3.10 以上版本。
+    echo [Error] Your computer has neither uv nor a Python environment installed!
+    echo Please go to https://www.python.org/ to download and install Python 3.10 or above.
     pause
     exit /b 1
 )
 
-echo [系统提示] 未检测到 uv，将使用系统自带的 Python 运行。
-echo 首次运行可能需要下载依赖库，请耐心等待...
+echo [System] uv not detected, will run using system Python.
+echo First run might need to download dependencies, please be patient...
 
-:: 检查并创建原生的虚拟环境
+:: Check and create native virtual environment
 if not exist "venv\Scripts\activate.bat" (
-    echo [系统提示] 正在为您创建 Python 隔离环境...
+    echo [System] Creating Python isolated environment for you...
     python -m venv venv
 )
 
-:: 激活虚拟环境
+:: Activate virtual environment
 call venv\Scripts\activate.bat
 
-:: 升级 pip 并安装 requirements.txt 里的依赖
+:: Upgrade pip and install dependencies in requirements.txt
 python -m pip install --upgrade pip >nul 2>nul
-echo [系统提示] 正在检查必要的运行库（如 openai 等）...
+echo [System] Checking necessary libraries (like openai, etc.)...
 pip install -r requirements.txt >nul 2>nul
 
 echo.
-echo 依赖环境准备完毕，正在启动 Agent...
+echo Dependency environment is ready, starting Agent...
 echo ===================================
 python main.py
 
 :end
 echo.
-echo 程序已退出。
+echo Program has exited.
 pause

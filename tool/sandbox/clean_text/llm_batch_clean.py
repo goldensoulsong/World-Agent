@@ -89,7 +89,20 @@ def llm_batch_clean_text(input_json_path: str, project_name: str, save_filename:
     base_url = os.getenv("BASE_URL")
     model_name = os.getenv("MODEL_NAME", "deepseek-chat")
     
+    # 强制安全过滤：防路径穿越漏洞 (Path Traversal)
+    safe_project_name = os.path.basename(project_name.replace("..", "").replace("/", "").replace("\\", ""))
+    safe_filename = os.path.basename(save_filename.replace("..", "").replace("/", "").replace("\\", ""))
+    
+    if not safe_project_name: safe_project_name = "default_project"
+    if not safe_filename: safe_filename = "llm_cleaned_data.json"
+    
     try:
+        # 强制检查读取路径是否在 workspace 内
+        abs_file_path = os.path.abspath(input_json_path)
+        workspace_path = os.path.abspath(os.path.join(os.getcwd(), "workspace"))
+        if os.path.commonpath([workspace_path, abs_file_path]) != workspace_path:
+            raise ValueError("安全拦截：禁止读取操作区 workspace 之外的文件！")
+
         with open(input_json_path, 'r', encoding='utf-8') as f:
             chunks = json.load(f)
             
@@ -124,9 +137,15 @@ def llm_batch_clean_text(input_json_path: str, project_name: str, save_filename:
         # 确保没有 None
         cleaned_chunks = [c if c is not None else chunks[i] for i, c in enumerate(cleaned_chunks)]
         
-        output_dir = os.path.abspath(os.path.join(os.getcwd(), "output", project_name))
+        output_dir = os.path.abspath(os.path.join(os.getcwd(), "workspace", "output", safe_project_name))
+        base_output_path = os.path.abspath(os.path.join(os.getcwd(), "workspace", "output"))
+        
+        # 终极验证：确保 output_dir 必须在当前执行目录的 workspace/output 文件夹之下
+        if os.path.commonpath([base_output_path, output_dir]) != base_output_path:
+            raise ValueError("安全拦截：检测到非法的路径越界尝试！")
+            
         os.makedirs(output_dir, exist_ok=True)
-        output_json_path = os.path.join(output_dir, save_filename)
+        output_json_path = os.path.join(output_dir, safe_filename)
         
         with open(output_json_path, 'w', encoding='utf-8') as f:
             json.dump(cleaned_chunks, f, ensure_ascii=False, indent=2)

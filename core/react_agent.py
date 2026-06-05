@@ -130,3 +130,64 @@ class ReActAgent:
                 return message.content
                 
         return "已达到最大思考次数，ReAct 循环被强制终止"
+        
+    def run_generator(self, user_query: str):
+        """
+        供 Web API 调用的生成器版本，使用 Server-Sent Events (SSE) 格式。
+        """
+        self.chat_history.append({"role": "user", "content": user_query})
+        
+        for loop_count in range(self.max_loops):
+            response = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=self.chat_history,
+                tools=self.tools,
+                tool_choice="auto"
+            )
+            
+            message = response.choices[0].message
+            self.chat_history.append(message)
+            
+            if message.content:
+                yield f"data: {json.dumps({'type': 'thought', 'content': message.content}, ensure_ascii=False)}\n\n"
+            
+            if message.tool_calls:
+                for tool_call in message.tool_calls:
+                    func_name = tool_call.function.name
+                    if func_name in self.available_tools:
+                        args = json.loads(tool_call.function.arguments)
+                        args_to_print = {k: v for k, v in args.items() if k != 'intent_analysis'}
+                        
+                        yield f"data: {json.dumps({'type': 'action', 'function': func_name, 'args': args_to_print}, ensure_ascii=False)}\n\n"
+                        
+                        func_to_call = self.available_tools[func_name]
+                        try:
+                            valid_args = {k: v for k, v in args.items() if k != 'intent_analysis'}
+                            tool_result = func_to_call(**valid_args)
+                        except Exception as e:
+                            tool_result = f"调用工具时发生错误: {str(e)}"
+                            
+                        if isinstance(tool_result, str) and len(tool_result) > 100000:
+                            tool_result = tool_result[:100000] + f"\n\n...[截断]"
+                            
+                        self.chat_history.append({
+                            "role": "tool",
+                            "tool_call_id": tool_call.id,
+                            "name": func_name,
+                            "content": tool_result
+                        })
+                        
+                        yield f"data: {json.dumps({'type': 'observation', 'content': tool_result}, ensure_ascii=False)}\n\n"
+                    else:
+                        self.chat_history.append({
+                            "role": "tool",
+                            "tool_call_id": tool_call.id,
+                            "name": func_name,
+                            "content": f"错误：未找到名为 {func_name} 的工具"
+                        })
+                continue
+            else:
+                yield f"data: {json.dumps({'type': 'answer', 'content': message.content}, ensure_ascii=False)}\n\n"
+                return
+                
+        yield f"data: {json.dumps({'type': 'error', 'content': '已达到最大思考次数'}, ensure_ascii=False)}\n\n"

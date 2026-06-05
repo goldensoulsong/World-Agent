@@ -40,10 +40,23 @@ def clean_content(text: str) -> str:
 
 def chunk_text(file_path: str, project_name: str, save_filename: str, split_pattern: str = None) -> str:
     """
-    按章节对小说/设定集进行切块，并保存为 JSON 格式，统一放在 output/项目名称 文件夹下。
+    按章节对小说/设定集进行切块，并保存为 JSON 格式，统一放在 workspace/output/项目名称 文件夹下。
     支持自定义正则表达式 split_pattern，成为通用切块工具。
     """
     try:
+        # 安全过滤
+        safe_project_name = os.path.basename(project_name.replace("..", "").replace("/", "").replace("\\", ""))
+        safe_filename = os.path.basename(save_filename.replace("..", "").replace("/", "").replace("\\", ""))
+        if not safe_project_name: safe_project_name = "default_project"
+        if not safe_filename: safe_filename = "chunks.json"
+
+        # 检查读权限
+        abs_file_path = os.path.abspath(file_path)
+        workspace_path = os.path.abspath(os.path.join(os.getcwd(), "workspace"))
+        if os.path.commonpath([workspace_path, abs_file_path]) != workspace_path:
+            raise ValueError("安全拦截：禁止读取操作区 workspace 之外的文件！请确保小说放在 workspace/input/ 下。")
+
+
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 text = f.read()
@@ -138,9 +151,14 @@ def chunk_text(file_path: str, project_name: str, save_filename: str, split_patt
                     chunk['id'] = f"chunk_{len(chunks)}"
                     chunks.append(chunk)
 
-        output_dir = os.path.abspath(os.path.join(os.getcwd(), "output", project_name))
+        output_dir = os.path.abspath(os.path.join(os.getcwd(), "workspace", "output", safe_project_name))
+        base_output_path = os.path.abspath(os.path.join(os.getcwd(), "workspace", "output"))
+        
+        if os.path.commonpath([base_output_path, output_dir]) != base_output_path:
+            raise ValueError("安全拦截：检测到非法的路径越界尝试！")
+            
         os.makedirs(output_dir, exist_ok=True)
-        output_path = os.path.join(output_dir, save_filename)
+        output_path = os.path.join(output_dir, safe_filename)
         
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(chunks, f, ensure_ascii=False, indent=2)

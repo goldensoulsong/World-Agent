@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World-Agent | Nexus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Animated Gradients -->
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+
+    <div class="app-container">
+        <!-- Left Drawer: Input Workspace -->
+        <aside class="drawer left-drawer glass-panel">
+            <div class="drawer-header">
+                <h2>📥 Input Zone</h2>
+                <p>workspace/input</p>
+            </div>
+            
+            <div class="upload-section">
+                <input type="file" id="file-upload" class="file-input" />
+                <label for="file-upload" class="upload-btn glass-btn">
+                    <span>+ 上传语料 (TXT/JSON)</span>
+                </label>
+            </div>
+
+            <div class="file-list" id="input-file-list">
+                <!-- Dynamically populated -->
+            </div>
+            
+            <div class="quick-actions">
+                <h3>⚡ 快捷指令</h3>
+                <button class="action-btn glass-btn" onclick="sendChat('请帮我智能切块 workspace/input 下的所有小说，存入项目 default_project')">🔪 智能切块 (Smart Chunk)</button>
+            </div>
+        </aside>
+
+        <!-- Center: Chat Interface -->
+        <main class="chat-container glass-panel">
+            <header class="chat-header">
+                <h1>World-Agent <span>Nexus</span></h1>
+                
+                <div class="hud-controls">
+                    <button class="hud-btn" onclick="openModal('settings')" title="Settings Hub">🔌</button>
+                    <button class="hud-btn" onclick="openModal('activity')" title="System Activity Log">🔔</button>
+                    <button class="hud-btn" onclick="openModal('trace')" title="Agent Trace Log">⚙️</button>
+                    <button class="hud-btn" onclick="openModal('context')" title="Context Memory">🧠</button>
+                    <div class="status-indicator">
+                        <span class="dot"></span> Online
+                    </div>
+                </div>
+            </header>
+            
+            <div class="chat-messages" id="chat-messages">
+                <div class="message ai-message">
+                    <div class="avatar">AI</div>
+                    <div class="content">你好！我是你的智能修书助手。你可以把小说拖进左侧抽屉，然后随时吩咐我！</div>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <textarea id="chat-input" placeholder="输入指令，例如：把 input 里的文件彻底清洗一下..." rows="1"></textarea>
+                <button id="send-btn" class="glass-btn primary-btn">发送</button>
+            </div>
+        </main>
+
+        <!-- Right Drawer: Output Workspace -->
+        <aside class="drawer right-drawer glass-panel">
+            <div class="drawer-header">
+                <h2>📦 Output Zone</h2>
+                <p>workspace/output</p>
+            </div>
+
+            <div class="file-list" id="output-file-list">
+                <!-- Dynamically populated -->
+            </div>
+
+            <div class="quick-actions">
+                <h3>⚡ 快捷指令</h3>
+                <button class="action-btn glass-btn" onclick="sendChat('请帮我把 workspace/output/default_project 里的文件合并成 TXT 并导出')">📄 合并导出 TXT</button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- HUD Modal -->
+    <div id="hud-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h2 id="modal-title">Monitor</h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Content injected via JS -->
+            </div>
+            
+            <!-- Hidden Settings Form Template -->
+            <div id="settings-template" style="display:none;">
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label>API Base URL</label>
+                        <input type="text" id="config-base-url" placeholder="https://api.deepseek.com/v1" class="glass-input">
+                    </div>
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <input type="password" id="config-api-key" placeholder="sk-..." class="glass-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Model Name</label>
+                        <div class="model-select-group">
+                            <!-- We use an input with datalist or just an input to allow manual typing and dropdown -->
+                            <input type="text" id="config-model-name" list="model-options" placeholder="deepseek-chat" class="glass-input">
+                            <datalist id="model-options"></datalist>
+                            <button class="glass-btn action-btn" onclick="fetchModels()">🔄 拉取模型</button>
+                        </div>
+                    </div>
+                    <button class="glass-btn primary-btn" style="width:100%; margin-top:20px;" onclick="saveConfig()">保存并热重载</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

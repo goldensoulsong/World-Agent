@@ -29,11 +29,11 @@ WRITE_FILE_SCHEMA = {
 
 def write_file(file_path: str, content: str) -> str:
     """
-    将内容写入本地文件（已加入安全沙箱，强制输出到 output 目录）
+    将内容写入本地文件（已加入安全沙箱，强制输出到 workspace/output 目录）
     """
     try:
         # 【强制归档机制】：确定 output 目录的绝对路径
-        output_dir = os.path.abspath(os.path.join(os.getcwd(), "output"))
+        output_dir = os.path.abspath(os.path.join(os.getcwd(), "workspace", "output"))
         
         # 如果模型传的是相对路径，自动拼接到 output 目录下
         if not os.path.isabs(file_path):
@@ -41,9 +41,9 @@ def write_file(file_path: str, content: str) -> str:
         else:
             target_path = os.path.abspath(file_path)
             
-        # 【安全拦截】：如果最终路径不在 output 目录下，无情拒绝
-        if not target_path.startswith(output_dir):
-            return json.dumps({"error": "【安全拦截】：为保持项目整洁，你只能将文件写入 output/ 文件夹下！"}, ensure_ascii=False)
+        # 【安全拦截】：终极防御！使用 commonpath 避免 startswith 漏洞
+        if os.path.commonpath([output_dir, target_path]) != output_dir:
+            return json.dumps({"error": "【安全拦截】：为保持项目整洁且防范非法越权操作，你只能将文件写入 workspace/output/ 文件夹下！"}, ensure_ascii=False)
             
         # 自动创建 output 目录及父级子目录
         os.makedirs(os.path.dirname(target_path), exist_ok=True)

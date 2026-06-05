@@ -5,6 +5,7 @@ __pycache__/
 .venv/
 *.txt
 output/
+workspace/
 
 # Local personal documentation and HTML simulations
 SKILL_ARCHITECTURE_TUTORIAL.md

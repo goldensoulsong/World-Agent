@@ -32,6 +32,12 @@ def read_chunk(json_path: str, start_index: int, count: int) -> str:
     分批读取 JSON 块文件，返回指定范围的块列表的 JSON 字符串形式。
     """
     try:
+        # 强制检查读取路径是否在 workspace 内
+        abs_file_path = os.path.abspath(json_path)
+        workspace_path = os.path.abspath(os.path.join(os.getcwd(), "workspace"))
+        if os.path.commonpath([workspace_path, abs_file_path]) != workspace_path:
+            return json.dumps({"error": "安全拦截：禁止读取操作区 workspace 之外的文件！"}, ensure_ascii=False)
+            
         if not os.path.exists(json_path):
             return json.dumps({"error": f"文件不存在: {json_path}"}, ensure_ascii=False)
             

@@ -31,18 +31,33 @@ def json_to_txt(input_json_path: str, project_name: str, save_filename: str, **k
     """
     读取 JSON 文件，并将其合并导出为 TXT 纯文本。
     """
+    # 1. 强制检查读取路径是否在 workspace 内（安全前置，防探测）
+    abs_file_path = os.path.abspath(input_json_path)
+    workspace_path = os.path.abspath(os.path.join(os.getcwd(), "workspace"))
+    if os.path.commonpath([workspace_path, abs_file_path]) != workspace_path:
+        return json.dumps({"status": "error", "message": "安全拦截：禁止读取操作区 workspace 之外的文件！"})
+        
     if not os.path.exists(input_json_path):
         return json.dumps({"status": "error", "message": f"找不到输入文件: {input_json_path}"})
         
-    # 构建输出路径，强制放入 output/project_name/ 下
-    output_dir = os.path.join("output", project_name)
+    # 强制安全过滤：防路径穿越漏洞
+    safe_project_name = os.path.basename(project_name.replace("..", "").replace("/", "").replace("\\", ""))
+    safe_filename = os.path.basename(save_filename.replace("..", "").replace("/", "").replace("\\", ""))
+    if not safe_project_name: safe_project_name = "default_project"
+    
+    # 构建输出路径，强制放入 workspace/output/project_name/ 下
+    output_dir = os.path.abspath(os.path.join(os.getcwd(), "workspace", "output", safe_project_name))
+    base_output_path = os.path.abspath(os.path.join(os.getcwd(), "workspace", "output"))
+    if os.path.commonpath([base_output_path, output_dir]) != base_output_path:
+        return json.dumps({"status": "error", "message": "安全拦截：检测到非法的路径越界尝试！"})
+        
     os.makedirs(output_dir, exist_ok=True)
     
     # 确保扩展名是 .txt
-    if not save_filename.lower().endswith(".txt"):
-        save_filename += ".txt"
+    if not safe_filename.lower().endswith(".txt"):
+        safe_filename += ".txt"
         
-    output_txt_path = os.path.join(output_dir, save_filename)
+    output_txt_path = os.path.join(output_dir, safe_filename)
     
     try:
         with open(input_json_path, "r", encoding="utf-8") as f:

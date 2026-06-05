@@ -6,6 +6,7 @@ __pycache__/
 *.txt
 output/
 workspace/
+agent_experience/
 
 # Local personal documentation and HTML simulations
 SKILL_ARCHITECTURE_TUTORIAL.md

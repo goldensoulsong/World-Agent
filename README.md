@@ -32,39 +32,43 @@
 
 ## 📁 项目目录结构
 
-项目的核心结构与对应的功能说明如下：
+<details>
+<summary>📂 <b>点击展开详细项目目录结构</b></summary>
 
 ```text
 World-Agent/
-├── .env                   # 本地环境变量配置文件（首次运行后自动生成，存储 API_KEY 等）
-├── core/                  # 核心架构层
-│   ├── prompts.py         # 系统提示词（System Prompts）配置
-│   └── react_agent.py     # ReAct Agent 核心控制器（负责解析意图与调度工具）
-├── tool/                  # 扩展工具箱
-│   ├── chunk_text/        # 长文本切块排版工具
-│   ├── clean_text/        # 文本去广告清洗、大模型深度清洗工具
-│   ├── json_to_txt/       # JSON 转 TXT 格式转换工具
-│   ├── list_dir/          # 目录结构读取工具
-│   ├── read_chunk/        # 分块文件读取工具
-│   ├── read_file/         # 基础文件读取工具
-│   ├── web_search/        # 联网搜索工具
-│   ├── write_file/        # 文件写入/保存工具
-│   └── __init__.py        # 工具统一注册与导出模块
-├── main.py                # 主程序入口（包含交互式配置引导）
-├── start.bat              # Windows 一键启动脚本（全自动准备环境）
-├── requirements.txt       # Python 依赖库清单
-├── pyproject.toml         # 项目打包与包管理器配置
-└── README.md              # 项目说明文档
+├── .env                   # 本地环境变量配置文件（存储 API_KEY 等）
+├── core/                  # 【核心发动机层】：绝对不变的逻辑底座
+│   ├── prompts.py         # 脑髓：具有防幻觉、深度思考能力的系统提示词
+│   └── react_agent.py     # 心脏：ReAct 思考循环泵与动态组装逻辑
+├── skill/                 # 【技能工作流层】：可插拔的场景化 SOP 大脑
+│   ├── data_cleaning.py   # 数据清洗领域知识与操作规范
+│   ├── smart_chunking.py  # 智能切块领域知识与操作规范
+│   └── __init__.py        # 技能统一注册中心
+├── tool/                  # 【物理工具层】：供 Agent 调用的执行动作
+│   ├── chunk_text/        # 长文本切块动作
+│   ├── clean_text/        # 文本洗稿动作
+│   ├── json_to_txt/       # JSON 转 TXT 格式转换动作
+│   ├── list_dir/          # 本地目录结构读取动作
+│   ├── load_skill/        # 内部挂载机制：按需动态下载技能 SOP
+│   ├── read_chunk/        # 针对大型文件的分块抽样读取动作
+│   ├── read_file/         # 带防溢出保护的基础文件读取动作
+│   ├── web_search/        # 联网搜索引擎动作
+│   ├── write_file/        # 文件覆盖/追加保存动作
+│   └── __init__.py        # 工具统一注册与暴露接口
+└── main.py                # 启动总线与交互入口
 ```
+</details>
 
 ---
 
 ## 💻 开发者架构说明
 
-如果您熟悉 Python 并希望进行二次开发，项目的核心代码结构非常清晰：
-- **核心控制器**：`main.py` 和 `core/react_agent.py`（基于纯手写的 ReAct 架构构建）。
-- **工具箱**：`tool/` 文件夹（扩展新功能只需在此目录添加相应的 Python 脚本即可）。
-- **系统提示词**：`core/prompts.py`（控制 Agent 行为和设定的指令集）。
+本项目采用了业界前沿的 **按需加载 (On-Demand Loading)** 智能体架构。如果您希望进行二次开发，请遵循以下规范：
+
+- **添加新动作 (Action)**：在 `tool/` 下新建工具，这是系统与外部物理世界交互的双手。
+- **添加新技能 (Skill)**：在 `skill/` 下新建 SOP 规范，这是针对特定场景的工作流手册。
+- **动态组装机制**：为了防止巨量 Token 消耗，主控 prompt 中只注入技能目录（名称与触发条件）。当大模型意图命中目录时，会自主调用 `load_skill` 工具将具体手册下载到短期记忆中进行阅读与执行。
 
 ---
 

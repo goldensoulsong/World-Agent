@@ -63,7 +63,8 @@ def main():
         print(f"\n[系统提示] 已选择模型: {model_name}")
         print("[系统提示] 配置已成功保存到 .env 文件中，下次启动将自动加载！\n")
     
-    from core.prompts import REACT_SYSTEM_PROMPT, MASTER_AGENT_PROMPT
+    from core.prompts import MASTER_AGENT_PROMPT
+    from skill import ALL_SKILLS
     from tool import TOOLS_SCHEMA, AVAILABLE_TOOLS
     
     # 2. 实例化 Agent
@@ -71,7 +72,8 @@ def main():
         system_prompt=MASTER_AGENT_PROMPT, 
         tools_schema=TOOLS_SCHEMA,
         available_tools=AVAILABLE_TOOLS,
-        max_loops=20
+        max_loops=20,
+        skills=ALL_SKILLS
     )
     
     print("=== 欢迎进入 ReAct Agent 终端 ===")

@@ -13,10 +13,8 @@ class ReActAgent:
     2. 工具调用与解析能力 (tools / tool_calls)
     3. 自我思考循环 (Thought -> Action -> Observation)
     """
-    def __init__(self, system_prompt: str = None, tools_schema: list = None, available_tools: dict = None, max_loops: int = 20):
+    def __init__(self, system_prompt: str = None, tools_schema: list = None, available_tools: dict = None, max_loops: int = 20, skills: list = None):
         # 1. 初始化客户端
-        print(f"[DEBUG] API_KEY: {os.getenv('API_KEY')}")
-        print(f"[DEBUG] BASE_URL: {os.getenv('BASE_URL')}")
         self.client = OpenAI(
             api_key=os.getenv("API_KEY"),
             base_url=os.getenv("BASE_URL")
@@ -27,6 +25,19 @@ class ReActAgent:
         # 2. 初始化记忆窗口
         self.chat_history = []
         if system_prompt:
+            # 动态装载 skills
+            if "{skills_injection}" in system_prompt:
+                if skills:
+                    skills_text = "【高级智能工作流 (Skills) 目录】：\n当你扫描到用户的真实需求匹配以下技能的触发条件时，你【必须】第一时间调用 `load_skill_sop` 工具，传入对应的内部标识名称，下载并阅读该技能的完整操作手册 (SOP) 后再开始干活！绝不允许在没有装载 SOP 的情况下盲目执行！\n\n"
+                    for idx, skill in enumerate(skills):
+                        skills_text += f"{idx + 1}. {skill['display_name']}\n"
+                        skills_text += f"   - 内部标识：{skill['name']}\n"
+                        skills_text += f"   - 触发条件：{skill['trigger_condition']}\n\n"
+                    
+                    system_prompt = system_prompt.replace("{skills_injection}", skills_text)
+                else:
+                    system_prompt = system_prompt.replace("{skills_injection}", "")
+
             self.chat_history.append({"role": "system", "content": system_prompt})
             
         # 3. 注册给大模型的工具 JSON Schema

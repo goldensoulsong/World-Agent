@@ -7,6 +7,7 @@ from .read_chunk import read_chunk, READ_CHUNK_SCHEMA
 from .json_to_txt import json_to_txt, JSON_TO_TXT_SCHEMA
 from .clean_text.llm_batch_clean import llm_batch_clean_text, LLM_BATCH_CLEAN_SCHEMA
 from .list_dir import list_dir, LIST_DIR_SCHEMA
+from .load_skill import load_skill_sop, LOAD_SKILL_SCHEMA
 
 TOOLS_SCHEMA = [
     SEARCH_WEB_SCHEMA,
@@ -17,7 +18,8 @@ TOOLS_SCHEMA = [
     READ_CHUNK_SCHEMA,
     JSON_TO_TXT_SCHEMA,
     LLM_BATCH_CLEAN_SCHEMA,
-    LIST_DIR_SCHEMA
+    LIST_DIR_SCHEMA,
+    LOAD_SKILL_SCHEMA
 ]
 
 AVAILABLE_TOOLS = {
@@ -29,7 +31,8 @@ AVAILABLE_TOOLS = {
     "read_chunk": read_chunk,
     "json_to_txt": json_to_txt,
     "llm_batch_clean_text": llm_batch_clean_text,
-    "list_dir": list_dir
+    "list_dir": list_dir,
+    "load_skill_sop": load_skill_sop
 }
 
 __all__ = ["TOOLS_SCHEMA", "AVAILABLE_TOOLS"]

@@ -5,3 +5,8 @@ __pycache__/
 .venv/
 *.txt
 output/
+
+# Local personal documentation and HTML simulations
+SKILL_ARCHITECTURE_TUTORIAL.md
+skill_simulation.html
+tool/TOOLS_ANALYSIS.md

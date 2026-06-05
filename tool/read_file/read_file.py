@@ -48,15 +48,29 @@ def read_file(file_path: str, force_read: bool = False) -> str:
             files = os.listdir(target_path)
             return json.dumps({"type": "directory", "path": target_path, "contents": files}, ensure_ascii=False)
             
-        # 如果是普通文件，检查文件大小，防止撑爆上下文（限制在 100KB 以内，大约 5万 token）
+        # 如果是普通文件，检查文件大小
         file_size = os.path.getsize(target_path)
-        if file_size > 100 * 1024 and not force_read:
+        is_large = file_size > 100 * 1024
+        
+        try:
+            with open(target_path, "r", encoding="utf-8") as f:
+                if is_large and not force_read:
+                    preview_content = f.read(1000)
+                    return json.dumps({
+                        "error": f"【二次确认拦截】：文件过大 ({file_size / 1024 / 1024:.2f} MB)！为了防止撑爆大模型内存，我暂时拦截了全量读取。",
+                        "preview": f"{preview_content}\n\n... [文件太长，后续内容已截断] ...",
+                        "suggestion": "这只是文件开头的 1000 个字符预览。如果你确定要强行读取全部内容，请增加参数 `force_read: true` 再次调用；如果只需要局部读取，请改用 read_chunk 等工具。"
+                    }, ensure_ascii=False)
+                else:
+                    content = f.read()
+                    return json.dumps({"type": "file", "file_path": file_path, "content": content}, ensure_ascii=False)
+                    
+        except UnicodeDecodeError:
+            # 捕获二进制文件或非 utf-8 编码文件
             return json.dumps({
-                "error": f"【二次确认拦截】：文件过大 ({file_size / 1024 / 1024:.2f} MB)！为了防止撑爆大模型内存，我暂时拦截了此次读取。如果你只是想预览，请使用截取读取工具（如 read_chunk）；如果你确定要强行读取整个文件，请在本次调用时增加参数 `force_read: true` 再次调用我。"
+                "type": "binary_or_unknown_file", 
+                "file_path": file_path, 
+                "info": f"⚠️ 这是一个二进制文件（例如图片、音频、压缩包）或非 UTF-8 编码的文件。文件大小：{file_size} bytes。无法以纯文本模式读取内容。"
             }, ensure_ascii=False)
-            
-        with open(target_path, "r", encoding="utf-8") as f:
-            content = f.read()
-        return json.dumps({"type": "file", "file_path": file_path, "content": content}, ensure_ascii=False)
     except Exception as e:
         return json.dumps({"error": f"读取失败: {str(e)}"}, ensure_ascii=False)

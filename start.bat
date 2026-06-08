@@ -1,58 +1,14 @@
 @echo off
-title World-Agent Nexus Deployment Tool
+title World-Agent Nexus Launcher
 color 0A
 
 echo ========================================================
 echo.
-echo      🚀 World-Agent Nexus (v0.1) Launcher 🚀
+echo      🚀 World-Agent Nexus (v0.1) Auto-Launcher 🚀
 echo.
 echo ========================================================
 echo.
-echo Please select your deployment environment:
-echo.
-echo   [1] Docker Mode (Recommended, auto-configures PostgreSQL)
-echo   [2] Local Mode (Requires Node.js and Python installed)
-echo.
-
-set /p choice="Enter 1 or 2 and press Enter: "
-
-if "%choice%"=="1" goto docker_mode
-if "%choice%"=="2" goto local_mode
-
-echo Invalid input. Please run the script again.
-pause
-exit /b
-
-:docker_mode
-echo.
-echo [System] Checking Docker environment...
-where docker >nul 2>nul
-if %ERRORLEVEL% neq 0 (
-    color 0C
-    echo [Error] Docker not found! Please install Docker Desktop and ensure it is running.
-    echo If you don't want to use Docker, rerun this script and select [2] Local Mode.
-    pause
-    exit /b 1
-)
-
-echo [System] Starting Docker containers (this may take a while to pull images)...
-docker-compose up -d --build
-
-if %ERRORLEVEL% equ 0 (
-    echo.
-    echo [Success] Containers started successfully!
-    echo [System] Waking up browser...
-    start http://127.0.0.1:8080/static/index.html
-) else (
-    color 0C
-    echo [Error] Failed to start Docker containers. Please check if Docker daemon is running.
-)
-pause
-exit /b
-
-:local_mode
-echo.
-echo [System] Checking local environment...
+echo [System] Starting fully automated deployment process...
 echo.
 
 :: 1. Check Node.js and build frontend
@@ -60,7 +16,7 @@ echo [Step 1/3] Checking frontend environment (Node.js)...
 where npm >nul 2>nul
 if %ERRORLEVEL% neq 0 (
     color 0C
-    echo [Error] npm not found! Node.js is required to build the frontend in local mode.
+    echo [Error] npm not found! Node.js is required to build the frontend.
     echo Please download and install it from https://nodejs.org/
     pause
     exit /b 1

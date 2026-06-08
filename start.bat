@@ -1,105 +1,104 @@
 @echo off
-chcp 65001 >nul
-title World-Agent Nexus 一键部署工具
+title World-Agent Nexus Deployment Tool
 color 0A
 
 echo ========================================================
 echo.
-echo      🚀 World-Agent Nexus (v0.1) 一键部署工具 🚀
+echo      🚀 World-Agent Nexus (v0.1) Launcher 🚀
 echo.
 echo ========================================================
 echo.
-echo 请选择您的运行环境：
+echo Please select your deployment environment:
 echo.
-echo   [1] Docker 环境一键启动 (推荐，自动配置 PostgreSQL)
-echo   [2] 本地开发环境启动 (需自备 Node.js 和 Python 环境)
+echo   [1] Docker Mode (Recommended, auto-configures PostgreSQL)
+echo   [2] Local Mode (Requires Node.js and Python installed)
 echo.
 
-set /p choice="请输入 1 或 2 并按回车: "
+set /p choice="Enter 1 or 2 and press Enter: "
 
 if "%choice%"=="1" goto docker_mode
 if "%choice%"=="2" goto local_mode
 
-echo 无效的输入，请重新运行。
+echo Invalid input. Please run the script again.
 pause
 exit /b
 
 :docker_mode
 echo.
-echo [System] 正在检查 Docker 环境...
+echo [System] Checking Docker environment...
 where docker >nul 2>nul
 if %ERRORLEVEL% neq 0 (
     color 0C
-    echo [Error] 未检测到 Docker！请先安装 Docker Desktop 并在后台运行。
-    echo 如果您不想安装 Docker，请重新运行本脚本并选择 [2] 本地模式。
+    echo [Error] Docker not found! Please install Docker Desktop and ensure it is running.
+    echo If you don't want to use Docker, rerun this script and select [2] Local Mode.
     pause
     exit /b 1
 )
 
-echo [System] 正在启动 Docker 容器组 (可能需要拉取镜像，请耐心等待)...
+echo [System] Starting Docker containers (this may take a while to pull images)...
 docker-compose up -d --build
 
 if %ERRORLEVEL% equ 0 (
     echo.
-    echo [Success] 容器启动成功！
-    echo [System] 正在唤醒浏览器...
+    echo [Success] Containers started successfully!
+    echo [System] Waking up browser...
     start http://127.0.0.1:8080/static/index.html
 ) else (
     color 0C
-    echo [Error] Docker 容器启动失败，请检查 Docker 是否正常运行。
+    echo [Error] Failed to start Docker containers. Please check if Docker daemon is running.
 )
 pause
 exit /b
 
 :local_mode
 echo.
-echo [System] 开始检测本地运行环境...
+echo [System] Checking local environment...
 echo.
 
-:: 1. 检查 Node.js 并构建前端
-echo [Step 1/3] 检查前端环境 (Node.js)...
+:: 1. Check Node.js and build frontend
+echo [Step 1/3] Checking frontend environment (Node.js)...
 where npm >nul 2>nul
 if %ERRORLEVEL% neq 0 (
     color 0C
-    echo [Error] 未检测到 npm 环境！本地模式需要安装 Node.js 才能构建前端。
-    echo 请前往 https://nodejs.org/ 下载安装后重试。
+    echo [Error] npm not found! Node.js is required to build the frontend in local mode.
+    echo Please download and install it from https://nodejs.org/
     pause
     exit /b 1
 )
 
-echo [System] 正在构建前端 React 界面，这可能需要 1-2 分钟...
+echo [System] Building React frontend (this may take 1-2 minutes)...
 cd frontend
 call npm install
 if %ERRORLEVEL% neq 0 (
     color 0C
-    echo [Error] npm install 失败！请检查网络或配置淘宝镜像。
+    echo [Error] npm install failed! Please check your network connection.
     pause
     exit /b 1
 )
 call npm run build
 if %ERRORLEVEL% neq 0 (
     color 0C
-    echo [Error] 前端构建失败！
+    echo [Error] Frontend build failed!
     pause
     exit /b 1
 )
 cd ..
-echo [Success] 前端构建完成！
+echo [Success] Frontend built successfully!
 echo.
 
-:: 2. 检查 Python 环境并安装依赖
-echo [Step 2/3] 检查后端环境 (Python / uv)...
+:: 2. Check Python environment and install dependencies
+echo [Step 2/3] Checking backend environment (Python / uv)...
 where uv >nul 2>nul
 if %ERRORLEVEL% equ 0 (
-    echo [System] 检测到 uv 环境，正在同步依赖...
+    echo [System] 'uv' detected, syncing dependencies...
     uv sync
     if %ERRORLEVEL% neq 0 (
         color 0C
-        echo [Error] uv 依赖同步失败！
+        echo [Error] uv sync failed!
         pause
         exit /b 1
     )
-    echo [Step 3/3] 启动后端服务...
+    echo [Step 3/3] Starting backend service...
     start http://127.0.0.1:8080/static/index.html
     uv run server.py
     exit /b
@@ -108,25 +107,25 @@ if %ERRORLEVEL% equ 0 (
 where python >nul 2>nul
 if %ERRORLEVEL% neq 0 (
     color 0C
-    echo [Error] 未检测到 Python 环境！请前往 https://www.python.org/ 安装。
+    echo [Error] Python not found! Please install from https://www.python.org/
     pause
     exit /b 1
 )
 
 if not exist ".venv\Scripts\activate.bat" (
-    echo [System] 正在为您创建 Python 虚拟环境...
+    echo [System] Creating Python virtual environment...
     python -m venv .venv
 )
 
-echo [System] 正在激活虚拟环境并安装/检查依赖...
+echo [System] Activating virtual environment and installing dependencies...
 call .venv\Scripts\activate.bat
 pip install -e . >nul 2>nul
-echo [Success] 后端依赖就绪！
+echo [Success] Backend dependencies are ready!
 echo.
 
-:: 3. 启动
-echo [Step 3/3] 启动后端服务...
-echo [System] 正在唤醒浏览器...
+:: 3. Start
+echo [Step 3/3] Starting backend service...
+echo [System] Waking up browser...
 start http://127.0.0.1:8080/static/index.html
 python server.py
 

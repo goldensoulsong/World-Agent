@@ -5,10 +5,11 @@ from dotenv import load_dotenv
 # 优雅地解决 Windows 终端打印大模型表情包报错的问题，同时防止中文变成乱码
 sys.stdout.reconfigure(errors='replace')
 
-# 从核心层引入封装好的 ReAct Agent
-from core.react_agent import ReActAgent
+import asyncio
+# 从解耦后的模块引入 文本处理Agent
+from agents.text_processing import TextProcessingAgent
 
-def main():
+async def main_async():
     # 1. 加载 .env 环境变量配置（需要在初始化 Agent 之前加载）
     load_dotenv(override=True)
     
@@ -63,20 +64,10 @@ def main():
         print(f"\n[系统提示] 已选择模型: {model_name}")
         print("[系统提示] 配置已成功保存到 .env 文件中，下次启动将自动加载！\n")
     
-    from core.prompts import MASTER_AGENT_PROMPT
-    from skill import ALL_SKILLS
-    from tool import TOOLS_SCHEMA, AVAILABLE_TOOLS
-    
     # 2. 实例化 Agent
-    agent = ReActAgent(
-        system_prompt=MASTER_AGENT_PROMPT, 
-        tools_schema=TOOLS_SCHEMA,
-        available_tools=AVAILABLE_TOOLS,
-        max_loops=20,
-        skills=ALL_SKILLS
-    )
+    agent = TextProcessingAgent(max_loops=20)
     
-    print("=== 欢迎进入 ReAct Agent 终端 ===")
+    print("=== 欢迎进入 文本处理Agent 终端 ===")
     
     while True:
         user_input = input("\n请输入你的问题 (输入 q 退出): ")
@@ -85,8 +76,11 @@ def main():
         
         if user_input.strip():
             # 4. 把问题交给 Agent 对象去处理
-            result = agent.run(user_input)
+            result = await agent.run(user_input)
             print(f"\n[Agent 最终回答]:\n{result}\n")
+
+def main():
+    asyncio.run(main_async())
 
 if __name__ == "__main__":
     main()

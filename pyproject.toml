@@ -1,7 +1,7 @@
 [project]
 name = "world-agent"
 version = "0.1.0"
-description = "Add your description here"
+description = "AI Agent framework for text processing with RAG and tool-use capabilities"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -10,4 +10,16 @@ dependencies = [
     "litellm>=1.87.0",
     "openai>=2.40.0",
     "python-dotenv>=1.2.2",
+    "fastapi>=0.110.0",
+    "uvicorn>=0.29.0",
+    "python-multipart>=0.0.9",
+    "langchain-core>=0.3.0",
+    "langchain-openai>=0.2.0",
+    "langchain-google-genai>=1.0.0",
+    "langgraph>=0.2.0",
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.13.0",
+    "psycopg[binary]>=3.0.0",
+    "pgvector>=0.2.0",
+    "numpy>=1.26.0",
 ]

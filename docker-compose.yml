@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  postgres-vector:
+    image: pgvector/pgvector:pg16
+    container_name: world-agent-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-worldagentpassword}
+      POSTGRES_DB: ${DB_NAME:-world_agent_db}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - ./.docker/pgdata:/var/lib/postgresql/data
+    restart: always

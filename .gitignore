@@ -1,14 +1,41 @@
-.env
+# === Python ===
 __pycache__/
 *.pyc
 *.pyo
 .venv/
-*.txt
-output/
-workspace/
+
+# === Environment & Secrets ===
+.env
+
+# === Node / Frontend ===
+node_modules/
+frontend/dist/
+
+# === Build Output (Vite -> static/) ===
+static/assets/
+
+# === Docker persistent data ===
+.docker/
+
+# === Runtime Data ===
+data/chats/
+workspace/input/*
+workspace/output/*
+# Keep directory structure
+!workspace/input/.gitkeep
+!workspace/output/.gitkeep
+
+# === Agent generated data ===
 agent_experience/
 
-# Local personal documentation and HTML simulations
+# === Local personal documentation ===
 SKILL_ARCHITECTURE_TUTORIAL.md
 skill_simulation.html
 tool/TOOLS_ANALYSIS.md
+
+# === IDE & OS ===
+.idea/
+.vscode/
+*.swp
+Thumbs.db
+.DS_Store

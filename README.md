@@ -53,28 +53,19 @@ World Agent 拥有按需加载的智能技能（SOP 手册）：
 
 ## 🚀 快速入门指南
 
-### 方式一：本地极速启动（推荐开发使用）
+为了让所有人都能零门槛使用，本项目提供了一个**傻瓜式一键启动脚本** `start.bat`。
 
-1. 确保安装了 Python 3.10+ 和 Node.js。
-2. 安装后端依赖：`pip install -r requirements.txt` (或使用 `uv` 包管理器 `uv sync`)
-3. 构建前端资源：
-   ```bash
-   cd frontend
-   npm install
-   npm run build
-   cd ..
-   ```
-4. 启动服务：运行根目录下的 `start.bat`（Windows）或直接运行 `python server.py`。
-5. 访问：在浏览器打开 `http://127.0.0.1:8080/static/index.html`。
+只需双击运行根目录下的 `start.bat`，即可看到交互菜单，支持两种环境：
 
-### 方式二：Docker 一键部署（推荐生产/体验使用）
+### 方式一：[1] Docker 一键启动（强烈推荐）
+最纯净、最稳定的体验。不仅能启动前后端，还会为您**自动配置 PostgreSQL 数据库**。
+- **前置要求**：只需安装 [Docker Desktop](https://www.docker.com/products/docker-desktop/) 并保持后台运行。
+- **执行过程**：脚本将自动拉起所有服务，完成后自动为您打开浏览器。
 
-1. 确保已安装 Docker 和 Docker Compose。
-2. 在根目录执行：
-   ```bash
-   docker-compose up -d
-   ```
-3. 容器将自动配置 PostgreSQL 数据库并启动前后端服务，启动完成后访问暴露的端口即可。
+### 方式二：[2] 本地开发启动
+如果您不想安装 Docker，也可以直接在系统里跑。脚本会**全自动**帮您完成前端构建和后端依赖安装！
+- **前置要求**：需要安装 [Node.js](https://nodejs.org/) 和 [Python 3.10+](https://www.python.org/)。
+- **执行过程**：脚本将自动执行 `npm install` 与 `npm run build` 打包前端，然后自动创建 `.venv` 虚拟环境并安装 Python 依赖，最后启动服务并打开浏览器。
 
 ### 初始配置步骤
 
